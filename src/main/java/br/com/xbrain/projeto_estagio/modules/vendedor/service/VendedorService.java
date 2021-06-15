@@ -1,5 +1,6 @@
 package br.com.xbrain.projeto_estagio.modules.vendedor.service;
 
+import br.com.xbrain.projeto_estagio.modules.venda.model.Venda;
 import br.com.xbrain.projeto_estagio.modules.vendedor.dto.VendedorResponse;
 import br.com.xbrain.projeto_estagio.modules.vendedor.filtros.VendedorFiltros;
 import br.com.xbrain.projeto_estagio.modules.vendedor.model.Vendedor;
@@ -8,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class VendedorService {
@@ -19,8 +22,19 @@ public class VendedorService {
     
     public List<VendedorResponse> tabularVendedores(VendedorFiltros vendedorFiltros) {
 
-        List<Vendedor> vendedores = vendedorRepository.tabularVendedores(vendedorFiltros.getDataInicio(), vendedorFiltros.getDataFim());
+        List<Vendedor> vendedores = vendedorRepository.findAll().stream().map(vendedor -> {
+            vendedor.setVendas(filtrarVendas(vendedor, vendedorFiltros));
+            return vendedor;
+        }).collect(Collectors.toList());
+
         return vendedores.stream().map(vendedor -> calcularMediaVendedores(vendedor, vendedorFiltros)).collect(Collectors.toList());
+
+    }
+
+    public List<Venda> filtrarVendas(Vendedor vendedor, VendedorFiltros vendedorFiltros) {
+
+        return vendedor.getVendas().stream().filter(venda -> venda.getData().isAfter(vendedorFiltros.getDataInicio())
+        && venda.getData().isBefore(vendedorFiltros.getDataFim())).collect(Collectors.toList());
 
     }
 

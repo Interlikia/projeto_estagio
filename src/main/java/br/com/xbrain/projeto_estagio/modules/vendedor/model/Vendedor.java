@@ -20,7 +20,7 @@ public class Vendedor {
 	@Column(name = "NOME")
 	private String nome;
 
-	@OneToMany(mappedBy = "vendedor")
+	@OneToMany(mappedBy = "vendedor", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Venda> vendas;
 
 }
